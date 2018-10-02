@@ -10,6 +10,9 @@ assign a label to the PR of which language it believes is responsible for the PR
 This repo is based off of the Serverless framework and has its implementation in AWS Lambda. To work with this code,
 you'll need the prerequesites found here: [https://serverless.com/blog/framework-example-golang-lambda-support/](https://serverless.com/blog/framework-example-golang-lambda-support/)
 
+## Runtime Architecture Diagram (Call Flow)
+![Call Flow Diagram](1.png)
+
 ## Roadmap
 With the initial implementation working, the next steps are to:
 
