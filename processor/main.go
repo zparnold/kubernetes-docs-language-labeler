@@ -16,7 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/kms"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
+	"encoding/base64"
 )
 
 func main() {
@@ -43,7 +43,7 @@ func ReceieveMessage(ctx context.Context, sqsEvent events.SQSEvent){
 
 func getChangedFiles(prNum int) []*github.CommitFile {
 	client, ctx := makeGithubClient()
-	files, _, err := client.PullRequests.ListFiles(ctx, os.Getenv("GH_ORG"), os.Getenv("GH_REPO"), prNum, &github.ListOptions{})
+	files, _, err := client.PullRequests.ListFiles(*ctx, os.Getenv("GH_ORG"), os.Getenv("GH_REPO"), prNum, &github.ListOptions{})
 	if err != nil{
 		golog.Fatal(err)
 	}
@@ -109,7 +109,7 @@ func getAnyKey(m *map[string]int) string{
 func applyLanguageLabels(prNum int, label string){
 	golog.Info("Now applying this label to this PR: ", prNum, label)
 	client, ctx := makeGithubClient()
-	_, _, err := client.Issues.AddLabelsToIssue(ctx, os.Getenv("GH_ORG"), os.Getenv("GH_REPO"), prNum, []string{label})
+	_, _, err := client.Issues.AddLabelsToIssue(*ctx, os.Getenv("GH_ORG"), os.Getenv("GH_REPO"), prNum, []string{label})
 	if err != nil{
 		os.Exit(1)
 	}
@@ -117,17 +117,19 @@ func applyLanguageLabels(prNum int, label string){
 
 func makeGithubClient() (*github.Client, *context.Context){
 	//Make a pseudo-factory method for producing a client and a context in which GH can execute
-	sess := session.Must(session.NewSession())
-	kmsClient := kms.New(sess, &aws.Config{
-		Region: aws.String(endpoints.UsWest2RegionID),
-	})
-	decryptedOutput, err := kmsClient.Decrypt(&kms.DecryptInput{CiphertextBlob: []byte(os.Getenv("GH_TOKEN"))})
-	if err != nil{
-		golog.Fatal(err)
+	sess := session.Must(session.NewSession(&aws.Config{
+		Region: aws.String("us-west-2")},
+	))
+	kmsClient := kms.New(sess)
+	blob, err := base64.StdEncoding.DecodeString(os.Getenv("GH_TOKEN"))
+	result, err := kmsClient.Decrypt(&kms.DecryptInput{CiphertextBlob: blob})
+	if err != nil {
+		golog.Fatal("Got error decrypting data: ", err)
 	}
+	blobString := string(result.Plaintext)
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: string(decryptedOutput.Plaintext)},
+		&oauth2.Token{AccessToken: blobString},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 

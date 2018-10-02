@@ -41,11 +41,12 @@ functions:
     environment:
         SQS_QUEUE_URL:
           Ref: PRQ
-        GH_TOKEN: AQICAHizIzARq0uEDETKhyxhn1/4iwwtjfIVgYzwASSYtUxftAEwG/xsg9DABm1+CQgnGQzgAAAAhzCBhAYJKoZIhvcNAQcGoHcwdQIBADBwBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDII6fkgQXAEEiFa4JgIBEIBDv5xE8Qt3i/BARgkEd4m8is4Vvqr0hGu4s9Gsqh9PdyiCZVkMqum3dpsixuxKy93EWW0rtbV0GCZ9l6HeKD7nCmSfiA==
-        GH_ORG: zparnold
-        GH_REPO: website
   runner:
     handler: bin/processor
+    environment:
+      GH_TOKEN: AQICAHizIzARq0uEDETKhyxhn1/4iwwtjfIVgYzwASSYtUxftAEwG/xsg9DABm1+CQgnGQzgAAAAhzCBhAYJKoZIhvcNAQcGoHcwdQIBADBwBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDII6fkgQXAEEiFa4JgIBEIBDv5xE8Qt3i/BARgkEd4m8is4Vvqr0hGu4s9Gsqh9PdyiCZVkMqum3dpsixuxKy93EWW0rtbV0GCZ9l6HeKD7nCmSfiA==
+      GH_ORG: zparnold
+      GH_REPO: website
     events:
       - sqs:
           arn:
