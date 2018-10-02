@@ -1,0 +1,59 @@
+service: kubernetes-docs-language-labeler
+
+provider:
+  name: aws
+  runtime: go1.x
+  region: us-west-2
+  profile: zparnold
+  stage: prod
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "sqs:SendMessage"
+        - "sqs:GetQueueUrl"
+      Resource:
+        Fn::GetAtt:
+          - PRQ
+          - Arn
+    - Effect: "Allow"
+      Action:
+        - "sqs:ListQueues"
+      Resource:
+        Fn::Join:
+          - ''
+          - - 'arn:aws:sqs:${self:provider.region}:'
+            - Ref: AWS::AccountId
+            - ':*'
+
+package:
+ exclude:
+   - ./**
+ include:
+   - ./bin/**
+
+functions:
+  ingress:
+    handler: bin/ingress
+    events:
+      - http:
+          path: v1/webhook
+          method: post
+    environment:
+        SQS_QUEUE_URL:
+          Ref: PRQ
+  runner:
+    handler: bin/processor
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - PRQ
+              - Arn
+          batchSize: 1
+
+resources:
+  Resources:
+    PRQ:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: "PRQ"
