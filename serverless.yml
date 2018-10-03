@@ -41,6 +41,7 @@ functions:
     environment:
         SQS_QUEUE_URL:
           Ref: PRQ
+        GH_SECRET: AQICAHizIzARq0uEDETKhyxhn1/4iwwtjfIVgYzwASSYtUxftAG2qWuBCOs33iec2x7G82qaAAAAxjCBwwYJKoZIhvcNAQcGoIG1MIGyAgEAMIGsBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDKPRURdp3lErUVXd7AIBEIB//+BlOjj5Fn5p9WE+b4EnI5APhON1vXvUYJ/3wNtgMZ2+ETXyhcG3/4ga75KlHrof0wgKUMn4d6Z8/RxGZrHRDmY0+F0yYl5p55TMj4Z4uiYW+UrAbYwLKtgqI4bM+r7bxR+Oc44uqn6fVMAPokRvhKz8L7cb2eJbsohZXEAp2w==
   runner:
     handler: bin/processor
     environment:
