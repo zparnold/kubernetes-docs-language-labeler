@@ -23,7 +23,6 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 	svc := sqs.New(sess)
-
 	//Decrypt secret key used in GH HMAC https://developer.github.com/webhooks/#delivery-headers
 	kmsSvc := kms.New(sess)
 	blob, err := base64.StdEncoding.DecodeString(os.Getenv("GH_SECRET"))
@@ -37,7 +36,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		golog.Error("Payload didn't pass verification. Exiting...")
 		return events.APIGatewayProxyResponse{StatusCode: 200}, nil
 	}
-
+	golog.Info("All checks pass, pushing into queue for processing")
 	// URL to our queue
 	qURL := os.Getenv("SQS_QUEUE_URL")
 	_, qErr := svc.SendMessage(&sqs.SendMessageInput{
