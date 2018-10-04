@@ -31,8 +31,9 @@ func ReceieveMessage(ctx context.Context, sqsEvent events.SQSEvent){
 			panic(err)
 		}
 		evt := webhookPayloadData.GetAction()
+		acceptableEvents := strings.Split(os.Getenv("GH_ALLOWED_EVENTS"),",")
 		//we only want to label newly opened PRs
-		if evt == "opened"{
+		if contains(acceptableEvents, evt){
 			golog.Info("Calculating delta of files changed")
 			files := getChangedFiles(*webhookPayloadData.Number)
 			label := calculateLanguage(&files)
@@ -135,4 +136,13 @@ func makeGithubClient() (*github.Client, *context.Context){
 
 	client := github.NewClient(tc)
 	return client, &ctx
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
